@@ -8,22 +8,15 @@ const data2 = fs.readFileSync(path.join(__dirname, '/dataTest.txt'), 'utf8');
 const dataTest = data2.split(',').map(Number);
 
 calcFuelCrab(arrayData)
+alternativeCalc(arrayData)
 
 function calcFuelCrab(dataList){
-    let max = 0;
-    let min = -1;
 
-    let cheapest = -1;
-    let cheapest2 = -1;
+    let max = Math.max(...dataList);
+    let min = Math.min(...dataList);
 
-    dataList.forEach(current => {
-        if(current > max){
-            max = current;
-        }
-        if(min === -1 || current < min){
-            min = current;
-        }
-    })
+    let cheapest = Number.MAX_SAFE_INTEGER;
+    let cheapest2 = Number.MAX_SAFE_INTEGER;
 
     for(let i = min; i <= max; i++){
         let currentSum = 0;
@@ -33,14 +26,40 @@ function calcFuelCrab(dataList){
             currentSum += n;
             currentSumExpanded += (n * (n+1))/2;
         });
-        if(cheapest === -1 || currentSum < cheapest){
+        if(currentSum < cheapest){
             cheapest = currentSum;
         }
-        if(cheapest2 === -1 || currentSumExpanded < cheapest2){
+        if(currentSumExpanded < cheapest2){
             cheapest2 = currentSumExpanded;
         }
     }
 
     console.log(`${cheapest}`);
     console.log(`${cheapest2}`);
+}
+
+// More performant try
+
+function alternativeCalc(dataList){
+    let medianVal = median(dataList);
+    let val = dataList.map((a) => Math.abs(a - medianVal)).reduce((a,b) => a + b, 0)
+    let mean = Math.floor(dataList.reduce((a,b) => a + b, 0) / dataList.length);
+    let val2 = dataList.map((d) => {
+        let n = Math.abs(d - mean);
+        return (n * (n + 1)) / 2;
+    }).reduce((a,b) => a + b, 0);
+
+    console.log(val)
+    console.log(val2)
+}
+
+function median(numbers){
+    const sorted = numbers.slice().sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+
+    if (sorted.length % 2 === 0) {
+        return (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    return sorted[middle];
 }
